@@ -2,53 +2,133 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="QRAsistencia.MAUI.Pages.MisAsistenciasPage"
-             Title="Mis Asistencias"
-             BackgroundColor="#263238">
+             Title=""
+             Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="*,Auto"
-          Padding="16">
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#0F172A" Offset="0.0" />
+            <GradientStop Color="#1E293B" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
-        <!-- Lista de asistencias (equivalente al ListView de Android) -->
-        <CollectionView x:Name="ListaAsistencias"
-                        Grid.Row="0"
-                        BackgroundColor="#1565C0"
-                        Margin="0,0,0,16">
-            <CollectionView.EmptyView>
-                <Label Text="Sin asistencias registradas"
-                       TextColor="White"
-                       FontSize="16"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"
-                       Margin="0,40,0,0" />
-            </CollectionView.EmptyView>
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Label Text="{Binding FechaFormateada}"
-                           TextColor="White"
-                           FontSize="16"
-                           Padding="12,10" />
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+    <Grid RowDefinitions="Auto,*,Auto"
+          Padding="28,52,28,32">
+
+        <!-- Encabezado -->
+        <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,28">
+            <Label Text="&#x1F4CB; Historial"
+                   TextColor="#94A3B8"
+                   FontSize="14" />
+            <Label Text="Mis Asistencias"
+                   TextColor="#F8FAFC"
+                   FontSize="26"
+                   FontAttributes="Bold" />
+        </VerticalStackLayout>
+
+        <!-- Lista de asistencias -->
+        <Grid Grid.Row="1">
+
+            <!-- Overlay de carga -->
+            <ActivityIndicator x:Name="Loader"
+                               IsRunning="False"
+                               IsVisible="False"
+                               Color="#3B82F6"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               ZIndex="10" />
+
+            <CollectionView x:Name="ListaAsistencias">
+
+                <!-- Vista vacía -->
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout HorizontalOptions="Center"
+                                         VerticalOptions="Center"
+                                         Spacing="12"
+                                         Margin="0,60,0,0">
+                        <Label Text="&#x1F4C5;"
+                               FontSize="48"
+                               HorizontalOptions="Center" />
+                        <Label Text="Sin asistencias registradas"
+                               TextColor="#94A3B8"
+                               FontSize="16"
+                               HorizontalOptions="Center" />
+                        <Label Text="Cuando registres asistencias aparecerán aquí"
+                               TextColor="#475569"
+                               FontSize="13"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <!-- Ítem de asistencia -->
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border BackgroundColor="#1E293B"
+                                Stroke="#334155"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 16"
+                                Margin="0,0,0,12"
+                                Padding="20,16">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+
+                                <!-- Ícono calendario -->
+                                <Border Grid.Column="0"
+                                        BackgroundColor="#3B82F620"
+                                        Stroke="#3B82F640"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 10"
+                                        WidthRequest="44"
+                                        HeightRequest="44"
+                                        Margin="0,0,16,0">
+                                    <Label Text="&#x1F4C5;"
+                                           FontSize="20"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+
+                                <!-- Fecha -->
+                                <VerticalStackLayout Grid.Column="1"
+                                                     VerticalOptions="Center"
+                                                     Spacing="2">
+                                    <Label Text="{Binding FechaFormateada}"
+                                           TextColor="#F8FAFC"
+                                           FontSize="15"
+                                           FontAttributes="Bold" />
+                                    <Label Text="Asistencia registrada"
+                                           TextColor="#64748B"
+                                           FontSize="12" />
+                                </VerticalStackLayout>
+
+                                <!-- Badge -->
+                                <Border Grid.Column="2"
+                                        BackgroundColor="#10B98120"
+                                        Stroke="#10B98150"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 8"
+                                        Padding="10,4"
+                                        VerticalOptions="Center">
+                                    <Label Text="&#x2713;"
+                                           TextColor="#10B981"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center" />
+                                </Border>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+        </Grid>
 
         <!-- Botón Volver -->
         <Button x:Name="BtnVolver"
-                Grid.Row="1"
-                Text="Volver"
-                FontSize="24"
-                BackgroundColor="#EF5350"
-                TextColor="Black"
-                CornerRadius="8"
-                HeightRequest="60"
+                Grid.Row="2"
+                Text="&#x2190;  Volver"
+                Style="{StaticResource BtnSecondary}"
+                Margin="0,16,0,0"
                 Clicked="OnVolverClicked" />
 
-        <!-- Indicador de carga -->
-        <ActivityIndicator x:Name="Loader"
-                           Grid.RowSpan="2"
-                           IsRunning="False"
-                           IsVisible="False"
-                           Color="White"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
     </Grid>
 </ContentPage>

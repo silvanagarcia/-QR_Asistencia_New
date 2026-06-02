@@ -3,43 +3,124 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
              x:Class="QRAsistencia.MAUI.Pages.EleccionPage"
-             Title="Asistencia ITES"
-             BackgroundColor="#263238">
+             Title=""
+             Shell.NavBarIsVisible="False">
 
-    <!-- Vista principal: dos botones -->
-    <Grid x:Name="MainView"
-          RowDefinitions="*,Auto,Auto,*"
-          Padding="32">
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#0F172A" Offset="0.0" />
+            <GradientStop Color="#1E293B" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
-        <Button x:Name="BtnTomar"
-                Grid.Row="1"
-                Text="Tomar Asistencia"
-                FontSize="30"
-                BackgroundColor="#4FC3F7"
-                TextColor="Black"
-                CornerRadius="10"
-                HeightRequest="80"
-                Margin="0,0,0,24"
-                Clicked="OnTomarClicked" />
+    <!-- Grid raíz: permite superponer MainView y BarcodeReader -->
+    <Grid>
 
-        <Button x:Name="BtnMisAsistencias"
-                Grid.Row="2"
-                Text="Mis Asistencias"
-                FontSize="24"
-                BackgroundColor="#4FC3F7"
-                TextColor="Black"
-                CornerRadius="10"
-                HeightRequest="70"
-                Clicked="OnMisAsistenciasClicked" />
+        <!-- ===== Vista principal ===== -->
+        <Grid x:Name="MainView"
+              RowDefinitions="Auto,*,Auto"
+              Padding="28,52,28,40">
+
+            <!-- Encabezado -->
+            <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,40">
+                <Label Text="&#x1F44B; Bienvenido"
+                       TextColor="#94A3B8"
+                       FontSize="15" />
+                <Label Text="¿Qué querés hacer hoy?"
+                       TextColor="#F8FAFC"
+                       FontSize="26"
+                       FontAttributes="Bold" />
+            </VerticalStackLayout>
+
+            <!-- Tarjetas de acción -->
+            <VerticalStackLayout Grid.Row="1"
+                                 Spacing="20"
+                                 VerticalOptions="Center">
+
+                <!-- Tarjeta: Tomar Asistencia -->
+                <Border BackgroundColor="#1E293B"
+                        Stroke="#3B82F640"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="28,28">
+                    <Border.Shadow>
+                        <Shadow Brush="#3B82F6" Offset="0,4" Radius="20" Opacity="0.2" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="&#x1F4F7;"
+                               FontSize="40"
+                               HorizontalOptions="Start" />
+                        <Label Text="Tomar Asistencia"
+                               TextColor="#F8FAFC"
+                               FontSize="20"
+                               FontAttributes="Bold" />
+                        <Label Text="Escaneá el código QR del aula para registrar tu asistencia"
+                               TextColor="#94A3B8"
+                               FontSize="13" />
+                        <Button x:Name="BtnTomar"
+                                Text="Escanear QR"
+                                Style="{StaticResource BtnPrimary}"
+                                Margin="0,8,0,0"
+                                Clicked="OnTomarClicked" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Tarjeta: Mis Asistencias -->
+                <Border BackgroundColor="#1E293B"
+                        Stroke="#10B98140"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 20"
+                        Padding="28,28">
+                    <Border.Shadow>
+                        <Shadow Brush="#10B981" Offset="0,4" Radius="20" Opacity="0.15" />
+                    </Border.Shadow>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="&#x1F4CB;"
+                               FontSize="40"
+                               HorizontalOptions="Start" />
+                        <Label Text="Mis Asistencias"
+                               TextColor="#F8FAFC"
+                               FontSize="20"
+                               FontAttributes="Bold" />
+                        <Label Text="Consultá el historial completo de tus asistencias registradas"
+                               TextColor="#94A3B8"
+                               FontSize="13" />
+                        <Button x:Name="BtnMisAsistencias"
+                                Text="Ver Historial"
+                                BackgroundColor="#10B981"
+                                TextColor="White"
+                                FontSize="16"
+                                FontAttributes="Bold"
+                                CornerRadius="14"
+                                HeightRequest="56"
+                                Margin="0,8,0,0"
+                                Clicked="OnMisAsistenciasClicked">
+                            <Button.Shadow>
+                                <Shadow Brush="#10B981" Offset="0,4" Radius="12" Opacity="0.4" />
+                            </Button.Shadow>
+                        </Button>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <!-- Footer -->
+            <Label Grid.Row="2"
+                   Text="ITES · Sistema de Asistencia QR"
+                   TextColor="#475569"
+                   FontSize="12"
+                   HorizontalOptions="Center" />
+        </Grid>
+
+        <!-- ===== Escáner QR ===== -->
+        <zxing:CameraBarcodeReaderView
+            x:Name="BarcodeReader"
+            IsVisible="False"
+            IsDetecting="False"
+            BarcodesDetected="OnBarcodesDetected"
+            VerticalOptions="Fill"
+            HorizontalOptions="Fill" />
+
     </Grid>
-
-    <!-- Escáner QR (visible solo al escanear) -->
-    <zxing:CameraBarcodeReaderView
-        x:Name="BarcodeReader"
-        IsVisible="False"
-        IsDetecting="False"
-        BarcodesDetected="OnBarcodesDetected"
-        VerticalOptions="Fill"
-        HorizontalOptions="Fill" />
 
 </ContentPage>

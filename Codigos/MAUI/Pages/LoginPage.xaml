@@ -2,50 +2,112 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="QRAsistencia.MAUI.Pages.LoginPage"
-             Title="AsistenciaITES"
-             BackgroundColor="#1565C0">
+             Title=""
+             Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,*,Auto,Auto,*"
-          Padding="32">
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#0F172A" Offset="0.0" />
+            <GradientStop Color="#1E1B4B" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
-        <!-- Título -->
-        <Label Grid.Row="0"
-               Text="Loguearse con DNI"
-               FontSize="28"
-               FontAttributes="Bold"
-               TextColor="White"
-               HorizontalOptions="Center"
-               Margin="0,40,0,0" />
+    <ScrollView>
+        <Grid RowDefinitions="*,Auto,*"
+              Padding="28,0"
+              MinimumHeightRequest="600">
 
-        <!-- Campo DNI -->
-        <Entry x:Name="EntryDNI"
-               Grid.Row="2"
-               Placeholder="Ingrese su DNI"
-               PlaceholderColor="#BBDEFB"
-               TextColor="White"
-               FontSize="22"
-               Keyboard="Numeric"
-               HorizontalTextAlignment="Center"
-               BackgroundColor="#0D47A1"
-               Margin="0,0,0,16" />
+            <!-- Sección superior: logo + título -->
+            <VerticalStackLayout Grid.Row="0"
+                                 VerticalOptions="End"
+                                 HorizontalOptions="Center"
+                                 Spacing="12"
+                                 Margin="0,60,0,40">
 
-        <!-- Botón Loguearse -->
-        <Button x:Name="BtnLogin"
-                Grid.Row="3"
-                Text="Loguearse"
-                FontSize="24"
-                BackgroundColor="#707B89"
-                TextColor="White"
-                CornerRadius="8"
-                Clicked="OnLoginClicked" />
-
-        <!-- Indicador de carga -->
-        <ActivityIndicator x:Name="Loader"
-                           Grid.Row="4"
-                           IsRunning="False"
-                           IsVisible="False"
-                           Color="White"
+                <!-- Ícono QR -->
+                <Border BackgroundColor="#3B82F620"
+                        StrokeThickness="1"
+                        Stroke="#3B82F640"
+                        StrokeShape="RoundRectangle 28"
+                        WidthRequest="96"
+                        HeightRequest="96"
+                        HorizontalOptions="Center">
+                    <Label Text="&#x1F4F1;"
+                           FontSize="48"
                            HorizontalOptions="Center"
-                           Margin="0,16,0,0" />
-    </Grid>
+                           VerticalOptions="Center" />
+                </Border>
+
+                <Label Text="AsistenciaQR"
+                       Style="{StaticResource LabelTitle}"
+                       FontSize="32"
+                       Margin="0,8,0,0" />
+
+                <Label Text="Sistema de Asistencia — ITES"
+                       Style="{StaticResource LabelSubtitle}" />
+            </VerticalStackLayout>
+
+            <!-- Sección central: card de login -->
+            <Border Grid.Row="1"
+                    BackgroundColor="#1E293B"
+                    Stroke="#334155"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 24"
+                    Padding="28,32">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,8" Radius="32" Opacity="0.4" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="20">
+
+                    <Label Text="Iniciá sesión"
+                           TextColor="#F8FAFC"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+
+                    <Label Text="Ingresá tu DNI para continuar"
+                           TextColor="#94A3B8"
+                           FontSize="13"
+                           HorizontalOptions="Center"
+                           Margin="0,-8,0,0" />
+
+                    <!-- Entry DNI con borde -->
+                    <Border BackgroundColor="#0F172A"
+                            Stroke="#334155"
+                            StrokeThickness="1.5"
+                            StrokeShape="RoundRectangle 14">
+                        <Entry x:Name="EntryDNI"
+                               Style="{StaticResource ModernEntry}"
+                               Placeholder="Ingresá tu DNI"
+                               Keyboard="Numeric"
+                               Margin="8,0" />
+                    </Border>
+
+                    <!-- Botón Login -->
+                    <Button x:Name="BtnLogin"
+                            Text="Ingresar"
+                            Style="{StaticResource BtnPrimary}"
+                            Clicked="OnLoginClicked" />
+
+                    <!-- Indicador de carga -->
+                    <ActivityIndicator x:Name="Loader"
+                                       IsRunning="False"
+                                       IsVisible="False"
+                                       Color="#3B82F6"
+                                       HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Sección inferior: versión -->
+            <Label Grid.Row="2"
+                   Text="v1.0 · ITES 2025"
+                   TextColor="#475569"
+                   FontSize="12"
+                   HorizontalOptions="Center"
+                   VerticalOptions="End"
+                   Margin="0,0,0,32" />
+
+        </Grid>
+    </ScrollView>
 </ContentPage>
