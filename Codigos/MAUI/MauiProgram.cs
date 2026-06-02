@@ -16,7 +16,8 @@ public static class MauiProgram
         {
             var client = new HttpClient
             {
-                BaseAddress = new Uri("http://77.81.230.76:5095/")
+                BaseAddress = new Uri("http://77.81.230.76:5095/"),
+                Timeout = TimeSpan.FromSeconds(15)
             };
             return client;
         });

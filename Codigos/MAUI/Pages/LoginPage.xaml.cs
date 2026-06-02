@@ -36,22 +36,31 @@ public partial class LoginPage : ContentPage
             bool ok = await _api.RegistrarDispositivoAsync(dni, deviceId);
             if (ok)
             {
-                // Guardar sesión (equivalente a SharedPreferences)
                 Preferences.Set("isLoggedIn", true);
                 Preferences.Set("DNI", dni);
                 Preferences.Set("IdAndroid", deviceId);
 
-                // Navegar a la pantalla de elección
                 Application.Current!.MainPage = new NavigationPage(new EleccionPage());
             }
             else
             {
-                await DisplayAlert("Error", "Intentalo de nuevo", "OK");
+                await DisplayAlert("DNI no encontrado",
+                    "El DNI ingresado no está registrado en el sistema. Verificá que sea correcto.", "OK");
             }
+        }
+        catch (HttpRequestException ex)
+        {
+            await DisplayAlert("Sin conexión al servidor",
+                $"No se pudo conectar con el servidor. Verificá que el servicio esté activo.\n\nDetalle: {ex.Message}", "OK");
+        }
+        catch (TaskCanceledException)
+        {
+            await DisplayAlert("Tiempo de espera agotado",
+                "El servidor tardó demasiado en responder. Intentá de nuevo.", "OK");
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Intentalo de nuevo: {ex.Message}", "OK");
+            await DisplayAlert("Error inesperado", ex.Message, "OK");
         }
         finally
         {
