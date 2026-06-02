@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="QRAsistencia.MAUI.Pages.LoginPage"
+             Title="AsistenciaITES"
+             BackgroundColor="#1565C0">
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto,*"
+          Padding="32">
+
+        <!-- Título -->
+        <Label Grid.Row="0"
+               Text="Loguearse con DNI"
+               FontSize="28"
+               FontAttributes="Bold"
+               TextColor="White"
+               HorizontalOptions="Center"
+               Margin="0,40,0,0" />
+
+        <!-- Campo DNI -->
+        <Entry x:Name="EntryDNI"
+               Grid.Row="2"
+               Placeholder="Ingrese su DNI"
+               PlaceholderColor="#BBDEFB"
+               TextColor="White"
+               FontSize="22"
+               Keyboard="Numeric"
+               HorizontalTextAlignment="Center"
+               BackgroundColor="#0D47A1"
+               Margin="0,0,0,16" />
+
+        <!-- Botón Loguearse -->
+        <Button x:Name="BtnLogin"
+                Grid.Row="3"
+                Text="Loguearse"
+                FontSize="24"
+                BackgroundColor="#707B89"
+                TextColor="White"
+                CornerRadius="8"
+                Clicked="OnLoginClicked" />
+
+        <!-- Indicador de carga -->
+        <ActivityIndicator x:Name="Loader"
+                           Grid.Row="4"
+                           IsRunning="False"
+                           IsVisible="False"
+                           Color="White"
+                           HorizontalOptions="Center"
+                           Margin="0,16,0,0" />
+    </Grid>
+</ContentPage>

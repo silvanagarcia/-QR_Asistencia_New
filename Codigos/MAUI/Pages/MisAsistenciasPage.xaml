@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="QRAsistencia.MAUI.Pages.MisAsistenciasPage"
+             Title="Mis Asistencias"
+             BackgroundColor="#263238">
+
+    <Grid RowDefinitions="*,Auto"
+          Padding="16">
+
+        <!-- Lista de asistencias (equivalente al ListView de Android) -->
+        <CollectionView x:Name="ListaAsistencias"
+                        Grid.Row="0"
+                        BackgroundColor="#1565C0"
+                        Margin="0,0,0,16">
+            <CollectionView.EmptyView>
+                <Label Text="Sin asistencias registradas"
+                       TextColor="White"
+                       FontSize="16"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Margin="0,40,0,0" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Label Text="{Binding FechaFormateada}"
+                           TextColor="White"
+                           FontSize="16"
+                           Padding="12,10" />
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Botón Volver -->
+        <Button x:Name="BtnVolver"
+                Grid.Row="1"
+                Text="Volver"
+                FontSize="24"
+                BackgroundColor="#EF5350"
+                TextColor="Black"
+                CornerRadius="8"
+                HeightRequest="60"
+                Clicked="OnVolverClicked" />
+
+        <!-- Indicador de carga -->
+        <ActivityIndicator x:Name="Loader"
+                           Grid.RowSpan="2"
+                           IsRunning="False"
+                           IsVisible="False"
+                           Color="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+    </Grid>
+</ContentPage>

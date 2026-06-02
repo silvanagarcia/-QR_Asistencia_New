@@ -1,0 +1,39 @@
+# .NET / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+[Pp]ackages/
+*.nupkg
+*.snupkg
+
+# MAUI / Android
+*.apk
+*.aab
+*.keystore
+
+# Publish output
+serverapi/
+publish/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Arduino
+*.elf
+*.hex
+*.bin
+
+# Secrets — no subir credenciales
+appsettings.Development.json
