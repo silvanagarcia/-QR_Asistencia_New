@@ -17,7 +17,7 @@ public partial class EleccionPage : ContentPage
         // Configurar el lector QR
         BarcodeReader.Options = new BarcodeReaderOptions
         {
-            Formats = BarcodeFormats.QrCode,
+            Formats = BarcodeFormats.All,
             AutoRotate = true,
             TryHarder = true
         };

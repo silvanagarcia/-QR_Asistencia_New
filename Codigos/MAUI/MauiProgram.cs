@@ -23,9 +23,6 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<Services.ApiService>();
 
-#if DEBUG
-        builder.Logging.AddDebug();
-#endif
 
         return builder.Build();
     }
