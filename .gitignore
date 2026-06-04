@@ -37,3 +37,10 @@ Thumbs.db
 
 # Secrets — no subir credenciales
 appsettings.Development.json
+appsettings.Production.json
+**/appsettings.*.json
+!**/appsettings.json
+
+# Archivos temporales de drawio
+*.dtmp
+*.bkp

@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectioString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddScoped<IAlumnoServicio, AlumnoServicio>();
 builder.Services.AddScoped<IAlumnoRepository, AlumnoRepository>();
@@ -17,32 +18,39 @@ builder.Services.AddScoped<IAsistenciaRepository, RegistroAsistenciaRepository>(
 builder.Services.AddScoped<IControlQRServicio, ControlQRServicio>();
 builder.Services.AddScoped<IControlQRRepository, ControlQRRepository>();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectioString));
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddCors(p => p.AddPolicy("corsapp",builder => {
-    builder.WithOrigins("*")
-    .AllowAnyMethod()
-    .AllowAnyHeader();
-}));
-
-
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options => options.AddPolicy("corsapp", policy =>
+{
+    policy.WithOrigins("*")
+          .AllowAnyMethod()
+          .AllowAnyHeader();
+}));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync("{\"error\": \"Error interno del servidor.\"}");
+    });
+});
+
 app.UseCors("corsapp");
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
-

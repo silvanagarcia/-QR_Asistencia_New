@@ -23,12 +23,11 @@ public class AlumnoRepository : IAlumnoRepository
             _applicationDbContext.SaveChanges();
             return true;
         }
-        catch (System.Exception)
+        catch (System.Exception ex)
         {
+            Console.WriteLine(ex.Message);
             return false;
-            throw;
         }
-        //throw new NotImplementedException();
     }
 /////////////////////////////////////////////////////
     public void DeleteAlumno(int id)
@@ -53,9 +52,10 @@ public class AlumnoRepository : IAlumnoRepository
 /////////////////////////////////////////////////////
     public Alumno GetByMac(string mac)
     {
+        if (string.IsNullOrEmpty(mac)) return null;
         return _applicationDbContext.Alumnos
-        .Where(d => d.MAC.ToLower().Contains(mac.ToLower()))
-        .FirstOrDefault();
+            .Where(d => d.MAC != null && d.MAC.ToLower() == mac.ToLower())
+            .FirstOrDefault();
     }
 
     /////////////////////////////////////////////////////

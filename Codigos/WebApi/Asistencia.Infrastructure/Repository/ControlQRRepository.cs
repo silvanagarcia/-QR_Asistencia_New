@@ -1,58 +1,38 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Asistencia.Application.Interfaces;
 using Asistencia.Domain.Entities;
 
-namespace Asistencia.Infrastructure.Repository
+namespace Asistencia.Infrastructure.Repository;
+
+public class ControlQRRepository : IControlQRRepository
 {
-    
-    public class ControlQRRepository : IControlQRRepository
+    // Estado en memoria: clave->valor del QR activo
+    private static readonly Dictionary<string, string> _codes = new();
+
+    public bool GuardaQR(MicroDTO microDTO)
     {
-        static Dictionary<string, string> code = new Dictionary<string, string>();
-        public ControlQRRepository()
+        try
         {
+            if (string.IsNullOrEmpty(microDTO.Key) || string.IsNullOrEmpty(microDTO.Valor))
+                return false;
+
+            _codes[microDTO.Key] = microDTO.Valor;
+            return true;
         }
-
-
-        public bool GuardaQR(MicroDTO microDTO)
+        catch (Exception ex)
         {
-            try
-            {
-                
-                if (!code.ContainsKey(microDTO.Key))
-                {
-                    code.Add(microDTO.Key, microDTO.Valor);
-                }else{
-                    code[microDTO.Key]=microDTO.Valor;
-                }
-                foreach( KeyValuePair<string, string> kvp in code )
-                {
-                    Console.Write(kvp.Key);
-                    Console.WriteLine(kvp.Value);
-                }
-                return true;
-            }
-            catch (System.Exception)
-            {
-                return true;
-                throw;
-            }
+            Console.WriteLine(ex.Message);
+            return false;
         }
+    }
 
-        MicroDTO IControlQRRepository.pedirQR()
+    public MicroDTO pedirQR()
+    {
+        var microDTO = new MicroDTO();
+        foreach (var kvp in _codes)
         {
-            MicroDTO microDTO = new MicroDTO();
-
-            foreach( KeyValuePair<string, string> kvp in code )
-            {
-                
-                microDTO.Key = kvp.Key;
-                microDTO.Valor =kvp.Value;
-            }
-
+            microDTO.Key = kvp.Key;
+            microDTO.Valor = kvp.Value;
+        }
         return microDTO;
-        }
     }
 }

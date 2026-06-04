@@ -17,8 +17,8 @@ namespace Asistencia.Application
 
         public bool GuardarQR(MicroDTO microDTO)
         {
-            if (String.IsNullOrEmpty(microDTO.Key) && String.IsNullOrEmpty(microDTO.Valor)){
-                 throw new InvalidDataException();
+            if (string.IsNullOrEmpty(microDTO.Key) || string.IsNullOrEmpty(microDTO.Valor)){
+                throw new InvalidDataException("Key y Valor son obligatorios.");
             }
             if (_controlQRRepository.GuardaQR(microDTO)){
                 return true;
