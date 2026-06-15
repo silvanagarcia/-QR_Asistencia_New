@@ -18,21 +18,20 @@
         <!-- ═══════════════════════════════════════════
              MENÚ PRINCIPAL
         ═══════════════════════════════════════════ -->
-        <Grid x:Name="MainView"
-              RowDefinitions="Auto,*,Auto"
-              Padding="28,52,28,40">
+        <ScrollView x:Name="MainView">
+            <VerticalStackLayout Padding="28,52,28,36" Spacing="0">
 
-            <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,40">
-                <Label Text="👋 Bienvenido"   TextColor="#94A3B8" FontSize="15" />
-                <Label Text="¿Qué querés hacer hoy?"
-                       TextColor="#F8FAFC" FontSize="26" FontAttributes="Bold" />
-            </VerticalStackLayout>
-
-            <VerticalStackLayout Grid.Row="1" Spacing="20" VerticalOptions="Center">
+                <!-- Encabezado -->
+                <VerticalStackLayout Spacing="4" Margin="0,0,0,32">
+                    <Label Text="👋 Bienvenido" TextColor="#94A3B8" FontSize="15" />
+                    <Label Text="¿Qué querés hacer hoy?"
+                           TextColor="#F8FAFC" FontSize="26" FontAttributes="Bold" />
+                </VerticalStackLayout>
 
                 <!-- Tarjeta Tomar Asistencia -->
                 <Border BackgroundColor="#1E293B" Stroke="#3B82F640"
-                        StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="28">
+                        StrokeThickness="1" StrokeShape="RoundRectangle 20"
+                        Padding="28" Margin="0,0,0,20">
                     <Border.Shadow>
                         <Shadow Brush="#3B82F6" Offset="0,4" Radius="20" Opacity="0.2" />
                     </Border.Shadow>
@@ -50,7 +49,8 @@
 
                 <!-- Tarjeta Mis Asistencias -->
                 <Border BackgroundColor="#1E293B" Stroke="#10B98140"
-                        StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="28">
+                        StrokeThickness="1" StrokeShape="RoundRectangle 20"
+                        Padding="28" Margin="0,0,0,28">
                     <Border.Shadow>
                         <Shadow Brush="#10B981" Offset="0,4" Radius="20" Opacity="0.15" />
                     </Border.Shadow>
@@ -72,11 +72,12 @@
                     </VerticalStackLayout>
                 </Border>
 
-            </VerticalStackLayout>
+                <!-- Footer -->
+                <Label Text="ITES · Sistema de Asistencia QR"
+                       TextColor="#475569" FontSize="12" HorizontalOptions="Center" />
 
-            <Label Grid.Row="2" Text="ITES · Sistema de Asistencia QR"
-                   TextColor="#475569" FontSize="12" HorizontalOptions="Center" />
-        </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
 
         <!-- ═══════════════════════════════════════════
              ESCÁNER QR
