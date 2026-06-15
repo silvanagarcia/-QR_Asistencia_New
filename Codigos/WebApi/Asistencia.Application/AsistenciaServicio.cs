@@ -5,74 +5,48 @@ namespace Asistencia.Application;
 
 public class AsistenciaServicio : IAsistenciaServicio
 {
-    //public TimeSpan hInicio= new TimeSpan(19, 30,0);
-    //public TimeSpan hfin= new TimeSpan(22, 0,0);
-
     private readonly IAsistenciaRepository _registroAsistenciaRepository;
     private readonly IAlumnoServicio _alumnoServicio;
     private readonly IControlQRServicio _controlQRServicio;
 
-    public AsistenciaServicio(IAsistenciaRepository registroAsistenciaRepository, IAlumnoServicio alumnoServicio, IControlQRServicio controlQRServicio)
+    public AsistenciaServicio(
+        IAsistenciaRepository registroAsistenciaRepository,
+        IAlumnoServicio alumnoServicio,
+        IControlQRServicio controlQRServicio)
     {
         _registroAsistenciaRepository = registroAsistenciaRepository;
         _alumnoServicio = alumnoServicio;
         _controlQRServicio = controlQRServicio;
     }
-/////////////////////////////////////////////////////////////////////////////////////
+
     public IEnumerable<AsistenciaAlumno> PedirAsistenciaPorDNI(int dni)
-    {
-        return _registroAsistenciaRepository.ObtenerAsistenciaPorId(dni);
-    }
-/////////////////////////////////////////////////////////////////////////////////////
+        => _registroAsistenciaRepository.ObtenerAsistenciaPorId(dni);
+
     public bool TomarAsistenciaPorDNI(AsistenciaDTO asistenciaDTO)
     {
+        // 1. Buscar alumno por MAC del dispositivo
         var alumno = _alumnoServicio.ObtenerPorMac(asistenciaDTO.MAC);
-        string[] parte = asistenciaDTO.CodigoQR.Split('-');
-        if (alumno != null){
-            var microDTO  = _controlQRServicio.ObtenerQR();
-            if(microDTO.Key == parte[0] && microDTO.Valor == parte[1]){
-                
-                 AsistenciaAlumno s = new AsistenciaAlumno();
-                
-                s.Alumno = alumno;
-                //s.AlumnoDNI = alumno.DNI;
-                s.Fecha = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
-                var ultima = _registroAsistenciaRepository.ObtenerUltimaAsistencia( alumno.DNI);
-                
-                if (ultima != null){
-                    DateTime dateUltimoUtc = DateTimeOffset.FromUnixTimeSeconds(ultima.Fecha).UtcDateTime;
-                    DateTime dateHoyUtc = DateTimeOffset.FromUnixTimeSeconds(s.Fecha).UtcDateTime;
+        if (alumno == null) return false;
 
-                    // Definir la zona horaria de Argentina
-                    TimeZoneInfo argentinaTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time");
-                    
-                    
-                    // Convertir la hora UTC a la hora de Argentina
-                    DateTime dateUltimo = TimeZoneInfo.ConvertTimeFromUtc(dateUltimoUtc, argentinaTimeZone);
-                    DateTime dateHoy = TimeZoneInfo.ConvertTimeFromUtc(dateHoyUtc, argentinaTimeZone);
+        // 2. Separar el código QR en KEY y VALOR (formato: "001-123456")
+        var partes = asistenciaDTO.CodigoQR.Split('-');
+        if (partes.Length < 2) return false;
 
+        string key   = partes[0];
+        string valor = partes[1];
 
-                    var diaGuardado = dateUltimo.ToString("yyyy-MM-dd");
-                    var diaHoy = dateHoy.ToString("yyyy-MM-dd");
+        // 3. Validar contra el historial de QR (acepta los últimos 5 generados)
+        //    Esto evita el 404 cuando el QR rota mientras el alumno escanea
+        if (!_controlQRServicio.ValidarQR(key, valor)) return false;
 
-                    //TimeSpan hHoy = dateHoy.TimeOfDay;
-                    /*
-                    if (!diaHoy.Equals(diaGuardado)){
-                        _registroAsistenciaRepository.RegistrarAsistencia(s);
-                        return true;
-                        //if (hHoy >= hInicio && hHoy  <= hfin){}
-                    }
-                    */
-                    _registroAsistenciaRepository.RegistrarAsistencia(s);
-                    return true;
-                    
-                }else{
-                    _registroAsistenciaRepository.RegistrarAsistencia(s);
-                    return true;
-                }
-                
-            }
-        }
-        return false;
+        // 4. Registrar la asistencia
+        var registro = new AsistenciaAlumno
+        {
+            Alumno = alumno,
+            Fecha  = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+        };
+
+        _registroAsistenciaRepository.RegistrarAsistencia(registro);
+        return true;
     }
 }
