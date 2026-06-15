@@ -10,7 +10,11 @@ public partial class MisAsistenciasPage : ContentPage
     {
         InitializeComponent();
         _api = Handler?.MauiContext?.Services.GetService<ApiService>()
-               ?? new ApiService(new HttpClient { BaseAddress = new Uri("http://77.81.230.76:5095/") });
+               ?? new ApiService(new HttpClient
+               {
+                   BaseAddress = new Uri("http://77.81.230.76:5095/"),
+                   Timeout = TimeSpan.FromSeconds(15)
+               });
     }
 
     protected override async void OnAppearing()
@@ -19,31 +23,38 @@ public partial class MisAsistenciasPage : ContentPage
         await CargarAsistenciasAsync();
     }
 
-    /// <summary>
-    /// Equivalente al método get() + doGetRequest() + onPostExecute() de PedirAsistenciaActivity.java
-    /// </summary>
     private async Task CargarAsistenciasAsync()
     {
-        // Verificar conectividad (equivalente al ConnectivityManager de Android)
         if (Connectivity.NetworkAccess != NetworkAccess.Internet)
         {
-            await DisplayAlert("Sin conexión", "No hay conexión a internet", "OK");
+            await DisplayAlertAsync("Sin conexión", "No hay conexión a internet.", "OK");
             return;
         }
 
         Loader.IsRunning = true;
         Loader.IsVisible = true;
         BtnVolver.IsEnabled = false;
+        BadgeTotal.IsVisible = false;
 
         try
         {
             int dni = Preferences.Get("DNI", -1);
             var asistencias = await _api.ObtenerAsistenciasAsync(dni);
-            ListaAsistencias.ItemsSource = asistencias;
+
+            // Ordenar de más reciente a más antiguo
+            var ordenadas = asistencias.OrderByDescending(a => a.Fecha).ToList();
+            ListaAsistencias.ItemsSource = ordenadas;
+
+            // Mostrar total
+            if (ordenadas.Count > 0)
+            {
+                LblTotal.Text = ordenadas.Count.ToString();
+                BadgeTotal.IsVisible = true;
+            }
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", $"Error al pedir las asistencias: {ex.Message}", "OK");
+            await DisplayAlertAsync("Error", $"No se pudieron cargar las asistencias: {ex.Message}", "OK");
         }
         finally
         {

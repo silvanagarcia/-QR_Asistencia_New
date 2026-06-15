@@ -13,50 +13,76 @@
     </ContentPage.Background>
 
     <Grid RowDefinitions="Auto,*,Auto"
-          Padding="28,52,28,32">
+          Padding="24,52,24,28">
 
-        <!-- Encabezado -->
-        <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,28">
-            <Label Text="&#x1F4CB; Historial"
-                   TextColor="#94A3B8"
-                   FontSize="14" />
-            <Label Text="Mis Asistencias"
-                   TextColor="#F8FAFC"
-                   FontSize="26"
-                   FontAttributes="Bold" />
-        </VerticalStackLayout>
+        <!-- ── Encabezado ── -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Margin="0,0,0,24">
+            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                <Label Text="📋 Historial"
+                       TextColor="#94A3B8"
+                       FontSize="13" />
+                <Label Text="Mis Asistencias"
+                       TextColor="#F8FAFC"
+                       FontSize="26"
+                       FontAttributes="Bold" />
+            </VerticalStackLayout>
 
-        <!-- Lista de asistencias -->
+            <!-- Total de asistencias -->
+            <Border Grid.Column="1"
+                    x:Name="BadgeTotal"
+                    BackgroundColor="#3B82F620"
+                    Stroke="#3B82F650"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="12,8"
+                    VerticalOptions="Center"
+                    IsVisible="False">
+                <VerticalStackLayout Spacing="0" HorizontalOptions="Center">
+                    <Label x:Name="LblTotal"
+                           Text="0"
+                           TextColor="#3B82F6"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+                    <Label Text="clases"
+                           TextColor="#64748B"
+                           FontSize="11"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- ── Lista ── -->
         <Grid Grid.Row="1">
 
-            <!-- Overlay de carga -->
             <ActivityIndicator x:Name="Loader"
                                IsRunning="False"
                                IsVisible="False"
                                Color="#3B82F6"
                                HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                               ZIndex="10" />
+                               VerticalOptions="Center" />
 
             <CollectionView x:Name="ListaAsistencias">
 
-                <!-- Vista vacía -->
+                <!-- Estado vacío -->
                 <CollectionView.EmptyView>
                     <VerticalStackLayout HorizontalOptions="Center"
                                          VerticalOptions="Center"
-                                         Spacing="12"
-                                         Margin="0,60,0,0">
-                        <Label Text="&#x1F4C5;"
-                               FontSize="48"
+                                         Spacing="16"
+                                         Padding="40,60">
+                        <Label Text="📅"
+                               FontSize="56"
                                HorizontalOptions="Center" />
-                        <Label Text="Sin asistencias registradas"
-                               TextColor="#94A3B8"
-                               FontSize="16"
+                        <Label Text="Sin asistencias aún"
+                               TextColor="#F8FAFC"
+                               FontSize="18"
+                               FontAttributes="Bold"
                                HorizontalOptions="Center" />
-                        <Label Text="Cuando registres asistencias aparecerán aquí"
-                               TextColor="#475569"
+                        <Label Text="Cuando escanees el QR del aula, tus asistencias aparecerán aquí."
+                               TextColor="#64748B"
                                FontSize="13"
-                               HorizontalOptions="Center" />
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center" />
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
 
@@ -67,51 +93,66 @@
                                 Stroke="#334155"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 16"
-                                Margin="0,0,0,12"
-                                Padding="20,16">
-                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                Margin="0,0,0,10"
+                                Padding="16,14">
+                            <Grid ColumnDefinitions="Auto,*,Auto"
+                                  ColumnSpacing="14">
 
-                                <!-- Ícono calendario -->
+                                <!-- Bloque de fecha (día + mes) -->
                                 <Border Grid.Column="0"
-                                        BackgroundColor="#3B82F620"
+                                        BackgroundColor="#1E40AF"
                                         Stroke="#3B82F640"
                                         StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 10"
-                                        WidthRequest="44"
-                                        HeightRequest="44"
-                                        Margin="0,0,16,0">
-                                    <Label Text="&#x1F4C5;"
-                                           FontSize="20"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center" />
+                                        StrokeShape="RoundRectangle 12"
+                                        WidthRequest="52"
+                                        HeightRequest="56"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                    <VerticalStackLayout Spacing="0"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center">
+                                        <Label Text="{Binding Dia}"
+                                               TextColor="White"
+                                               FontSize="22"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="Center" />
+                                        <Label Text="{Binding MesAnio}"
+                                               TextColor="#93C5FD"
+                                               FontSize="9"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="Center" />
+                                    </VerticalStackLayout>
                                 </Border>
 
-                                <!-- Fecha -->
+                                <!-- Día de semana + hora -->
                                 <VerticalStackLayout Grid.Column="1"
                                                      VerticalOptions="Center"
-                                                     Spacing="2">
-                                    <Label Text="{Binding FechaFormateada}"
+                                                     Spacing="3">
+                                    <Label Text="{Binding DiaSemana}"
                                            TextColor="#F8FAFC"
                                            FontSize="15"
                                            FontAttributes="Bold" />
-                                    <Label Text="Asistencia registrada"
+                                    <Label Text="{Binding Hora}"
                                            TextColor="#64748B"
-                                           FontSize="12" />
+                                           FontSize="13" />
                                 </VerticalStackLayout>
 
-                                <!-- Badge -->
+                                <!-- Badge check -->
                                 <Border Grid.Column="2"
-                                        BackgroundColor="#10B98120"
-                                        Stroke="#10B98150"
+                                        BackgroundColor="#10B98118"
+                                        Stroke="#10B98145"
                                         StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 8"
-                                        Padding="10,4"
-                                        VerticalOptions="Center">
-                                    <Label Text="&#x2713;"
+                                        StrokeShape="RoundRectangle 20"
+                                        WidthRequest="36"
+                                        HeightRequest="36"
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="End">
+                                    <Label Text="✓"
                                            TextColor="#10B981"
-                                           FontSize="14"
+                                           FontSize="16"
                                            FontAttributes="Bold"
-                                           HorizontalOptions="Center" />
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
                                 </Border>
 
                             </Grid>
@@ -122,12 +163,12 @@
             </CollectionView>
         </Grid>
 
-        <!-- Botón Volver -->
+        <!-- ── Botón Volver ── -->
         <Button x:Name="BtnVolver"
                 Grid.Row="2"
-                Text="&#x2190;  Volver"
+                Text="←  Volver"
                 Style="{StaticResource BtnSecondary}"
-                Margin="0,16,0,0"
+                Margin="0,12,0,0"
                 Clicked="OnVolverClicked" />
 
     </Grid>
