@@ -12,102 +12,161 @@ public partial class EleccionPage : ContentPage
     {
         InitializeComponent();
         _api = Handler?.MauiContext?.Services.GetService<ApiService>()
-               ?? new ApiService(new HttpClient { BaseAddress = new Uri("http://77.81.230.76:5095/") });
+               ?? new ApiService(new HttpClient
+               {
+                   BaseAddress = new Uri("http://77.81.230.76:5095/"),
+                   Timeout = TimeSpan.FromSeconds(15)
+               });
 
-        // Configurar el lector QR
         BarcodeReader.Options = new BarcodeReaderOptions
         {
             Formats = BarcodeFormats.All,
             AutoRotate = true,
-            TryHarder = true
+            TryHarder = true,
+            Multiple = false
         };
     }
 
-    // -------------------------------------------------------------------------
-    // Botón: Tomar Asistencia → abrir escáner QR
-    // -------------------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
+    // Botón: Escanear QR
+    // ─────────────────────────────────────────────────────────────────────────
     private async void OnTomarClicked(object sender, EventArgs e)
     {
-        // Pedir permiso de cámara
         var status = await Permissions.RequestAsync<Permissions.Camera>();
         if (status != PermissionStatus.Granted)
         {
-            await DisplayAlert("Permiso denegado", "Se necesita acceso a la cámara para escanear el QR", "OK");
+            await DisplayAlertAsync("Permiso denegado",
+                "Se necesita acceso a la cámara para escanear el QR.", "OK");
             return;
         }
 
-        // Mostrar el escáner y ocultar los botones
-        MainView.IsVisible = false;
-        BarcodeReader.IsVisible = true;
-        BarcodeReader.IsDetecting = true;
-        _procesando = false;
+        AbrirEscaner();
     }
 
-    // -------------------------------------------------------------------------
-    // Callback cuando ZXing detecta un código de barras
-    // Equivalente a onSuccess(List<Barcode>) de EleccionActivity.java
-    // -------------------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
+    // Botón: Cancelar (dentro del escáner)
+    // ─────────────────────────────────────────────────────────────────────────
+    private void OnCancelarClicked(object sender, EventArgs e)
+    {
+        VolverABotones();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Callback de ZXing cuando detecta un código
+    // ─────────────────────────────────────────────────────────────────────────
     private async void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
     {
         if (_procesando) return;
         _procesando = true;
 
-        // Detener la cámara antes de procesar
         BarcodeReader.IsDetecting = false;
 
         var qrLeido = e.Results.FirstOrDefault()?.Value;
-        if (string.IsNullOrEmpty(qrLeido))
-        {
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                await DisplayAlert("Error", "QR no leído", "OK");
-                VolverABotones();
-            });
-            return;
-        }
 
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
+            if (string.IsNullOrEmpty(qrLeido))
+            {
+                MostrarEstado("No se pudo leer el QR, intentá de nuevo...");
+                await Task.Delay(1500);
+                ReiniciarEscaner();
+                return;
+            }
+
+            // Mostrar indicador de carga
+            MostrarProcesando(true);
+
             try
             {
                 string mac = Preferences.Get("IdAndroid", "");
                 string? resultado = await _api.TomarAsistenciaAsync(mac, qrLeido);
-                await DisplayAlert("Asistencia", resultado ?? "Registrado", "OK");
+
+                MostrarProcesando(false);
+                await DisplayAlertAsync("✅ Asistencia registrada",
+                    resultado ?? "Tu asistencia fue registrada correctamente.", "OK");
+                VolverABotones();
+            }
+            catch (HttpRequestException ex)
+            {
+                MostrarProcesando(false);
+                bool reintentar = await DisplayAlert("Error al registrar",
+                    $"No se pudo registrar la asistencia.\n{ex.Message}",
+                    "Reintentar", "Cancelar");
+
+                if (reintentar)
+                    ReiniciarEscaner();
+                else
+                    VolverABotones();
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", $"Error al tomar asistencia: {ex.Message}", "OK");
-            }
-            finally
-            {
+                MostrarProcesando(false);
+                await DisplayAlertAsync("Error", ex.Message, "OK");
                 VolverABotones();
             }
         });
     }
 
-    private void VolverABotones()
-    {
-        BarcodeReader.IsVisible = false;
-        BarcodeReader.IsDetecting = false;
-        MainView.IsVisible = true;
-    }
-
-    // -------------------------------------------------------------------------
-    // Botón: Mis Asistencias → navegar a PedirAsistenciaActivity
-    // -------------------------------------------------------------------------
+    // ─────────────────────────────────────────────────────────────────────────
+    // Navegación
+    // ─────────────────────────────────────────────────────────────────────────
     private async void OnMisAsistenciasClicked(object sender, EventArgs e)
     {
         await Navigation.PushAsync(new MisAsistenciasPage());
     }
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // Botón físico atrás: si el escáner está abierto, lo cierra
+    // ─────────────────────────────────────────────────────────────────────────
     protected override bool OnBackButtonPressed()
     {
-        // Si el escáner está abierto, ciérralo; si no, comportamiento normal
-        if (BarcodeReader.IsVisible)
+        if (ScannerView.IsVisible)
         {
             VolverABotones();
             return true;
         }
         return base.OnBackButtonPressed();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Helpers de estado
+    // ─────────────────────────────────────────────────────────────────────────
+    private void AbrirEscaner()
+    {
+        _procesando = false;
+        MostrarEstado("Buscando código QR...");
+        MostrarProcesando(false);
+        MainView.IsVisible = false;
+        ScannerView.IsVisible = true;
+        BarcodeReader.IsDetecting = true;
+    }
+
+    private void ReiniciarEscaner()
+    {
+        _procesando = false;
+        MostrarEstado("Buscando código QR...");
+        MostrarProcesando(false);
+        BarcodeReader.IsDetecting = true;
+    }
+
+    private void VolverABotones()
+    {
+        BarcodeReader.IsDetecting = false;
+        ScannerView.IsVisible = false;
+        MainView.IsVisible = true;
+        _procesando = false;
+    }
+
+    private void MostrarEstado(string mensaje)
+    {
+        LblEstado.Text = mensaje;
+    }
+
+    private void MostrarProcesando(bool procesando)
+    {
+        ScanLoader.IsRunning = procesando;
+        ScanLoader.IsVisible = procesando;
+        MarcoQR.IsVisible = !procesando;
+        LblEstado.Text = procesando ? "Registrando asistencia..." : "Buscando código QR...";
     }
 }

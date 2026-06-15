@@ -13,15 +13,13 @@
         </LinearGradientBrush>
     </ContentPage.Background>
 
-    <!-- Grid raíz: permite superponer MainView y BarcodeReader -->
     <Grid>
 
-        <!-- ===== Vista principal ===== -->
+        <!-- ===== Vista principal (menú) ===== -->
         <Grid x:Name="MainView"
               RowDefinitions="Auto,*,Auto"
               Padding="28,52,28,40">
 
-            <!-- Encabezado -->
             <VerticalStackLayout Grid.Row="0" Spacing="4" Margin="0,0,0,40">
                 <Label Text="&#x1F44B; Bienvenido"
                        TextColor="#94A3B8"
@@ -32,10 +30,7 @@
                        FontAttributes="Bold" />
             </VerticalStackLayout>
 
-            <!-- Tarjetas de acción -->
-            <VerticalStackLayout Grid.Row="1"
-                                 Spacing="20"
-                                 VerticalOptions="Center">
+            <VerticalStackLayout Grid.Row="1" Spacing="20" VerticalOptions="Center">
 
                 <!-- Tarjeta: Tomar Asistencia -->
                 <Border BackgroundColor="#1E293B"
@@ -47,16 +42,10 @@
                         <Shadow Brush="#3B82F6" Offset="0,4" Radius="20" Opacity="0.2" />
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="12">
-                        <Label Text="&#x1F4F7;"
-                               FontSize="40"
-                               HorizontalOptions="Start" />
-                        <Label Text="Tomar Asistencia"
-                               TextColor="#F8FAFC"
-                               FontSize="20"
-                               FontAttributes="Bold" />
+                        <Label Text="&#x1F4F7;" FontSize="40" HorizontalOptions="Start" />
+                        <Label Text="Tomar Asistencia" TextColor="#F8FAFC" FontSize="20" FontAttributes="Bold" />
                         <Label Text="Escaneá el código QR del aula para registrar tu asistencia"
-                               TextColor="#94A3B8"
-                               FontSize="13" />
+                               TextColor="#94A3B8" FontSize="13" />
                         <Button x:Name="BtnTomar"
                                 Text="Escanear QR"
                                 Style="{StaticResource BtnPrimary}"
@@ -75,16 +64,10 @@
                         <Shadow Brush="#10B981" Offset="0,4" Radius="20" Opacity="0.15" />
                     </Border.Shadow>
                     <VerticalStackLayout Spacing="12">
-                        <Label Text="&#x1F4CB;"
-                               FontSize="40"
-                               HorizontalOptions="Start" />
-                        <Label Text="Mis Asistencias"
-                               TextColor="#F8FAFC"
-                               FontSize="20"
-                               FontAttributes="Bold" />
+                        <Label Text="&#x1F4CB;" FontSize="40" HorizontalOptions="Start" />
+                        <Label Text="Mis Asistencias" TextColor="#F8FAFC" FontSize="20" FontAttributes="Bold" />
                         <Label Text="Consultá el historial completo de tus asistencias registradas"
-                               TextColor="#94A3B8"
-                               FontSize="13" />
+                               TextColor="#94A3B8" FontSize="13" />
                         <Button x:Name="BtnMisAsistencias"
                                 Text="Ver Historial"
                                 BackgroundColor="#10B981"
@@ -104,7 +87,6 @@
 
             </VerticalStackLayout>
 
-            <!-- Footer -->
             <Label Grid.Row="2"
                    Text="ITES · Sistema de Asistencia QR"
                    TextColor="#475569"
@@ -112,14 +94,109 @@
                    HorizontalOptions="Center" />
         </Grid>
 
-        <!-- ===== Escáner QR ===== -->
-        <zxing:CameraBarcodeReaderView
-            x:Name="BarcodeReader"
-            IsVisible="False"
-            IsDetecting="False"
-            BarcodesDetected="OnBarcodesDetected"
-            VerticalOptions="Fill"
-            HorizontalOptions="Fill" />
+        <!-- ===== Vista del Escáner QR ===== -->
+        <Grid x:Name="ScannerView" IsVisible="False">
+
+            <!-- Cámara a pantalla completa -->
+            <zxing:CameraBarcodeReaderView
+                x:Name="BarcodeReader"
+                IsVisible="True"
+                IsDetecting="False"
+                BarcodesDetected="OnBarcodesDetected"
+                VerticalOptions="Fill"
+                HorizontalOptions="Fill" />
+
+            <!-- Overlay oscuro superior -->
+            <BoxView BackgroundColor="#CC000000"
+                     VerticalOptions="Start"
+                     HeightRequest="160" />
+
+            <!-- Overlay oscuro inferior -->
+            <BoxView BackgroundColor="#CC000000"
+                     VerticalOptions="End"
+                     HeightRequest="220" />
+
+            <!-- Barra superior con título -->
+            <VerticalStackLayout VerticalOptions="Start"
+                                 HorizontalOptions="Center"
+                                 Margin="0,60,0,0"
+                                 Spacing="6">
+                <Label Text="&#x1F4F7;  Escanear QR"
+                       TextColor="White"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center" />
+                <Label Text="Apuntá la cámara al código QR del aula"
+                       TextColor="#CBD5E1"
+                       FontSize="14"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Marco guía del QR (centro de pantalla) -->
+            <Border x:Name="MarcoQR"
+                    Stroke="#3B82F6"
+                    StrokeThickness="3"
+                    StrokeShape="RoundRectangle 16"
+                    BackgroundColor="Transparent"
+                    WidthRequest="260"
+                    HeightRequest="260"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <!-- Esquinas decorativas -->
+                <Grid>
+                    <!-- Esquina sup izq -->
+                    <BoxView Color="#3B82F6" WidthRequest="30" HeightRequest="4"
+                             HorizontalOptions="Start" VerticalOptions="Start" Margin="0,0,0,0"/>
+                    <BoxView Color="#3B82F6" WidthRequest="4" HeightRequest="30"
+                             HorizontalOptions="Start" VerticalOptions="Start" Margin="0,0,0,0"/>
+                    <!-- Esquina sup der -->
+                    <BoxView Color="#3B82F6" WidthRequest="30" HeightRequest="4"
+                             HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,0,0"/>
+                    <BoxView Color="#3B82F6" WidthRequest="4" HeightRequest="30"
+                             HorizontalOptions="End" VerticalOptions="Start" Margin="0,0,0,0"/>
+                    <!-- Esquina inf izq -->
+                    <BoxView Color="#3B82F6" WidthRequest="30" HeightRequest="4"
+                             HorizontalOptions="Start" VerticalOptions="End" Margin="0,0,0,0"/>
+                    <BoxView Color="#3B82F6" WidthRequest="4" HeightRequest="30"
+                             HorizontalOptions="Start" VerticalOptions="End" Margin="0,0,0,0"/>
+                    <!-- Esquina inf der -->
+                    <BoxView Color="#3B82F6" WidthRequest="30" HeightRequest="4"
+                             HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,0"/>
+                    <BoxView Color="#3B82F6" WidthRequest="4" HeightRequest="30"
+                             HorizontalOptions="End" VerticalOptions="End" Margin="0,0,0,0"/>
+                </Grid>
+            </Border>
+
+            <!-- Indicador de procesando -->
+            <ActivityIndicator x:Name="ScanLoader"
+                               IsRunning="False"
+                               IsVisible="False"
+                               Color="#3B82F6"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+
+            <!-- Barra inferior con botón cancelar -->
+            <VerticalStackLayout VerticalOptions="End"
+                                 HorizontalOptions="Center"
+                                 Spacing="12"
+                                 Margin="40,0,40,50">
+                <Label x:Name="LblEstado"
+                       Text="Buscando código QR..."
+                       TextColor="#94A3B8"
+                       FontSize="14"
+                       HorizontalOptions="Center" />
+                <Button Text="✕  Cancelar"
+                        BackgroundColor="#334155"
+                        TextColor="White"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        CornerRadius="14"
+                        HeightRequest="52"
+                        WidthRequest="200"
+                        Clicked="OnCancelarClicked" />
+            </VerticalStackLayout>
+
+        </Grid>
 
     </Grid>
 
