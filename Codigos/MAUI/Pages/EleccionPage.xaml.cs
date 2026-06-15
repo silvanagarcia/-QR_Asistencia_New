@@ -7,6 +7,8 @@ public partial class EleccionPage : ContentPage
 {
     private readonly ApiService _api;
     private bool _procesando = false;
+    private bool _linternaActiva = false;
+    private CancellationTokenSource? _animCts;
 
     public EleccionPage()
     {
@@ -39,20 +41,29 @@ public partial class EleccionPage : ContentPage
                 "Se necesita acceso a la cámara para escanear el QR.", "OK");
             return;
         }
-
         AbrirEscaner();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Botón: Cancelar (dentro del escáner)
+    // Botón: Cancelar
     // ─────────────────────────────────────────────────────────────────────────
-    private void OnCancelarClicked(object sender, EventArgs e)
+    private void OnCancelarClicked(object sender, EventArgs e) => VolverABotones();
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Botón: Linterna
+    // ─────────────────────────────────────────────────────────────────────────
+    private void OnLinternaClicked(object sender, TappedEventArgs e)
     {
-        VolverABotones();
+        _linternaActiva = !_linternaActiva;
+        BarcodeReader.IsTorchOn = _linternaActiva;
+        LblLinterna.Text = _linternaActiva ? "💡" : "🔦";
+        BtnLinterna.BackgroundColor = _linternaActiva
+            ? Color.FromArgb("#3B82F6")
+            : Color.FromArgb("#1E293B");
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Callback de ZXing cuando detecta un código
+    // Callback ZXing — código detectado
     // ─────────────────────────────────────────────────────────────────────────
     private async void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
     {
@@ -67,13 +78,12 @@ public partial class EleccionPage : ContentPage
         {
             if (string.IsNullOrEmpty(qrLeido))
             {
-                MostrarEstado("No se pudo leer el QR, intentá de nuevo...");
+                MostrarEstado("No se pudo leer, intentá de nuevo...");
                 await Task.Delay(1500);
                 ReiniciarEscaner();
                 return;
             }
 
-            // Mostrar indicador de carga
             MostrarProcesando(true);
 
             try
@@ -93,10 +103,8 @@ public partial class EleccionPage : ContentPage
                     $"No se pudo registrar la asistencia.\n{ex.Message}",
                     "Reintentar", "Cancelar");
 
-                if (reintentar)
-                    ReiniciarEscaner();
-                else
-                    VolverABotones();
+                if (reintentar) ReiniciarEscaner();
+                else VolverABotones();
             }
             catch (Exception ex)
             {
@@ -108,65 +116,95 @@ public partial class EleccionPage : ContentPage
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Navegación
+    // Navegación: Mis Asistencias
     // ─────────────────────────────────────────────────────────────────────────
     private async void OnMisAsistenciasClicked(object sender, EventArgs e)
-    {
-        await Navigation.PushAsync(new MisAsistenciasPage());
-    }
+        => await Navigation.PushAsync(new MisAsistenciasPage());
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Botón físico atrás: si el escáner está abierto, lo cierra
+    // Botón físico atrás
     // ─────────────────────────────────────────────────────────────────────────
     protected override bool OnBackButtonPressed()
     {
-        if (ScannerView.IsVisible)
-        {
-            VolverABotones();
-            return true;
-        }
+        if (ScannerView.IsVisible) { VolverABotones(); return true; }
         return base.OnBackButtonPressed();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
-    // Helpers de estado
+    // Helpers
     // ─────────────────────────────────────────────────────────────────────────
     private void AbrirEscaner()
     {
         _procesando = false;
-        MostrarEstado("Buscando código QR...");
+        _linternaActiva = false;
+        LblLinterna.Text = "🔦";
+        BtnLinterna.BackgroundColor = Color.FromArgb("#1E293B");
+        MostrarEstado("Buscando QR...");
         MostrarProcesando(false);
         MainView.IsVisible = false;
         ScannerView.IsVisible = true;
         BarcodeReader.IsDetecting = true;
+        IniciarAnimacionLinea();
     }
 
     private void ReiniciarEscaner()
     {
         _procesando = false;
-        MostrarEstado("Buscando código QR...");
+        MostrarEstado("Buscando QR...");
         MostrarProcesando(false);
         BarcodeReader.IsDetecting = true;
     }
 
     private void VolverABotones()
     {
+        DetenerAnimacionLinea();
         BarcodeReader.IsDetecting = false;
+        BarcodeReader.IsTorchOn = false;
+        _linternaActiva = false;
         ScannerView.IsVisible = false;
         MainView.IsVisible = true;
         _procesando = false;
     }
 
-    private void MostrarEstado(string mensaje)
+    private void MostrarEstado(string msg) => LblEstado.Text = msg;
+
+    private void MostrarProcesando(bool activo)
     {
-        LblEstado.Text = mensaje;
+        ScanLoader.IsRunning = activo;
+        ScanLoader.IsVisible = activo;
+        LineaEscaneo.IsVisible = !activo;
+        LblEstado.Text = activo ? "Registrando asistencia..." : "Buscando QR...";
     }
 
-    private void MostrarProcesando(bool procesando)
+    // ─── Animación de la línea de escaneo ────────────────────────────────────
+    private void IniciarAnimacionLinea()
     {
-        ScanLoader.IsRunning = procesando;
-        ScanLoader.IsVisible = procesando;
-        MarcoQR.IsVisible = !procesando;
-        LblEstado.Text = procesando ? "Registrando asistencia..." : "Buscando código QR...";
+        _animCts = new CancellationTokenSource();
+        var token = _animCts.Token;
+
+        Task.Run(async () =>
+        {
+            // Recorre desde y=0.37 hasta y=0.67 y vuelve
+            double[] posiciones = { 0.37, 0.42, 0.47, 0.52, 0.57, 0.62, 0.67,
+                                    0.62, 0.57, 0.52, 0.47, 0.42, 0.37 };
+            int i = 0;
+            while (!token.IsCancellationRequested)
+            {
+                var pos = posiciones[i % posiciones.Length];
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    AbsoluteLayout.SetLayoutBounds(LineaEscaneo,
+                        new Rect(0.08, pos, 0.84, 0.002));
+                });
+                i++;
+                await Task.Delay(80, token).ContinueWith(_ => { });
+            }
+        }, token);
+    }
+
+    private void DetenerAnimacionLinea()
+    {
+        _animCts?.Cancel();
+        _animCts = null;
     }
 }
