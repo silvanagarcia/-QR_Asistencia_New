@@ -22,6 +22,15 @@ create table public.alumno(
 	apellido varchar (30) not null,
 	mac varchar (20) UNIQUE null
 );
+-- Crea tabla de Control QR (persiste el código activo entre reinicios)
+CREATE TABLE public.control_qr (
+    id      integer PRIMARY KEY,
+    key     varchar(100) NOT NULL,
+    valor   varchar(100) NOT NULL,
+    generado_en bigint NOT NULL DEFAULT 0
+);
+GRANT ALL ON public.control_qr TO danilo;
+
 -- Crea table de Registro
 create table public.registro_asistencia(
 	registro_id serial primary key,

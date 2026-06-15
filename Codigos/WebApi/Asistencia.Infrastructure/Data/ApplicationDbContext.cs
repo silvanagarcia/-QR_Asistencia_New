@@ -8,8 +8,9 @@ public class ApplicationDbContext : DbContext
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {}
 
-    public DbSet<Alumno> Alumnos{get; set;}
-    public DbSet<AsistenciaAlumno> AsistenciasR{get; set;}
+    public DbSet<Alumno> Alumnos { get; set; }
+    public DbSet<AsistenciaAlumno> AsistenciasR { get; set; }
+    public DbSet<ControlQR> ControlQR { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
