@@ -34,9 +34,10 @@ void loop() {
   Serial.println(mostrar);
   Serial.println("-------------------------");
 
-  for(int i=0;i<10;i++){
+  // QR visible por 60 segundos — tiempo suficiente para que todos los alumnos escaneen
+  for(int i=0;i<60;i++){
     delay(1000);
-    Serial.print(i);  
+    Serial.print(i);
   }
   
   //Serial.println("hola Mundo!!");
